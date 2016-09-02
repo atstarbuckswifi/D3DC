@@ -1,0 +1,22 @@
+MINGW_DIR = /tdm-gcc-64
+MINGW_LIB = $(MINGW_DIR)/x86_64-w64-mingw32/lib
+MINGW_LIB32 = $(MINGW_DIR)/x86_64-w64-mingw32/lib32
+MINGW_WLIB = $(MINGW_DIR)/lib/gcc/x86_64-w64-mingw32/5.1.0
+MINGW_WLIB32 = $(MINGW_DIR)/lib/gcc/x86_64-w64-mingw32/5.1.0/32
+CC = gcc
+CFLAGS =
+LD = ld
+LFLAGS = -Xlinker -s
+
+all : D3DC.exe
+
+clean :
+	del *.o
+	del *.s
+
+D3DC.exe : D3DC.o
+	$(CC) -o D3DC.exe D3DC.o $(LFLAGS)
+
+D3DC.o : D3DC.c
+	$(CC) -S D3DC.c $(CFLAGS)
+	$(CC) -o D3DC.o -c D3DC.c $(CFLAGS)
