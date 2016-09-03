@@ -1,12 +1,26 @@
 MINGW_DIR = /tdm-gcc-64
 MINGW_LIB = $(MINGW_DIR)/x86_64-w64-mingw32/lib
 MINGW_LIB32 = $(MINGW_DIR)/x86_64-w64-mingw32/lib32
+MINGW_L = $(MINGW_DIR)/lib
+MINGW_LG = $(MINGW_DIR)/lib/gcc
 MINGW_WLIB = $(MINGW_DIR)/lib/gcc/x86_64-w64-mingw32/5.1.0
 MINGW_WLIB32 = $(MINGW_DIR)/lib/gcc/x86_64-w64-mingw32/5.1.0/32
 CC = gcc
 CFLAGS =
 LD = ld
-LFLAGS = -Xlinker -s
+LFLAGS = -s -m i386pep --exclude-libs=libpthread.a -Bdynamic
+LIB_RB = $(MINGW_LIB)/crt2.o $(MINGW_WLIB)/crtbegin.o
+LIB_E = $(MINGW_WLIB)/crtend.o
+LIB_DIR = -L$(MINGW_WLIB) -L$(MINGW_LG) -L$(MINGW_LIB) -L$(MINGW_L)
+LIB_M = -lmingw32 -lgcc -lmoldname -lmingwex -lmsvcrt -lpthread
+LIB_W = -ladvapi32 -lshell32 -luser32 -lkernel32
+LIB_FIX = $(LIB_M) $(LIB_W)
+#
+# -Bstatic
+# -lcomdlg32 -lgdi32 --subsystem windows
+# -ld3d9 -ld3dx9
+# -ld3d11 -ld3dx11
+# -lapi-ms-win-core-winrt-l1-1-0 -lapi-ms-win-core-winrt-string-l1-1-0
 
 all : D3DC.exe
 
@@ -15,7 +29,7 @@ clean :
 	del *.s
 
 D3DC.exe : D3DC.o
-	$(CC) -o D3DC.exe D3DC.o $(LFLAGS)
+	$(LD) -o D3DC.exe $(LFLAGS) $(LIB_RB) $(LIB_DIR) D3DC.o $(LIB_FIX) $(LIB_E)
 
 D3DC.o : D3DC.c
 	$(CC) -S D3DC.c $(CFLAGS)
