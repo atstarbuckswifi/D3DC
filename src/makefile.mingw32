@@ -32,5 +32,7 @@ D3DC.exe : D3DC.o
 	$(LD) -o D3DC.exe $(LFLAGS) $(LIB_RB) $(LIB_DIR) D3DC.o $(LIB_FIX) $(LIB_E)
 
 D3DC.o : D3DC.c
+	$(CC) -m32 -o D3DC.s32 -S D3DC.c $(CFLAGS)
+	$(CC) -m64 -o D3DC.s64 -S D3DC.c $(CFLAGS)
 	$(CC) -S D3DC.c $(CFLAGS)
 	$(CC) -o D3DC.o -c D3DC.c $(CFLAGS)
