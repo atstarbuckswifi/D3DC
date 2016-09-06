@@ -9,30 +9,56 @@ CC = gcc
 CFLAGS =
 LD = ld
 LFLAGS = -s -m i386pep --exclude-libs=libpthread.a -Bdynamic
+LFLAGS32 = -s -m i386pe --exclude-libs=libpthread.a -Bdynamic
+#
+# -Bstatic
+#
 LIB_RB = $(MINGW_LIB)/crt2.o $(MINGW_WLIB)/crtbegin.o
+LIB_RB32 = $(MINGW_LIB32)/crt2.o $(MINGW_WLIB32)/crtbegin.o
 LIB_E = $(MINGW_WLIB)/crtend.o
+LIB_E32 = $(MINGW_WLIB32)/crtend.o
+#
 LIB_DIR = -L$(MINGW_WLIB) -L$(MINGW_LG) -L$(MINGW_LIB) -L$(MINGW_L)
+LIB_DIR32 = -L$(MINGW_WLIB32) -L$(MINGW_LIB32) -L$(LIB_DIR)
 LIB_M = -lmingw32 -lgcc -lmoldname -lmingwex -lmsvcrt -lpthread
 LIB_W = -ladvapi32 -lshell32 -luser32 -lkernel32
 LIB_FIX = $(LIB_M) $(LIB_W)
 #
-# -Bstatic
 # -lcomdlg32 -lgdi32 --subsystem windows
 # -ld3d9 -ld3dx9
 # -ld3d11 -ld3dx11
 # -lapi-ms-win-core-winrt-l1-1-0 -lapi-ms-win-core-winrt-string-l1-1-0
+#
+LIB_PRE = $(LIB_RB) $(LIB_DIR)
+LIB_PRE32 = $(LIB_RB32) $(LIB_DIR32)
+LIB_POST = $(LIB_FIX) $(LIB_E)
+LIB_POST32 = $(LIB_FIX) $(LIB_E32)
 
-all : D3DC.exe
+all : D3DC.exe D3DC.64.exe D3DC.32.exe
 
 clean :
 	del *.o
+	del *.o64
+	del *.o32
 	del *.s
 
 D3DC.exe : D3DC.o
-	$(LD) -o D3DC.exe $(LFLAGS) $(LIB_RB) $(LIB_DIR) D3DC.o $(LIB_FIX) $(LIB_E)
+	$(LD) -o D3DC.exe $(LFLAGS) $(LIB_PRE) D3DC.o $(LIB_POST)
 
 D3DC.o : D3DC.c
-	$(CC) -m32 -o D3DC.s32 -S D3DC.c $(CFLAGS)
-	$(CC) -m64 -o D3DC.s64 -S D3DC.c $(CFLAGS)
-	$(CC) -S D3DC.c $(CFLAGS)
+	$(CC) -o D3DC.s -S D3DC.c $(CFLAGS)
 	$(CC) -o D3DC.o -c D3DC.c $(CFLAGS)
+
+D3DC.64.exe : D3DC.o64
+	$(LD) -o D3DC.64.exe $(LFLAGS) $(LIB_PRE) D3DC.o64 $(LIB_POST)
+
+D3DC.o64 : D3DC.c
+	$(CC) -m64 -o D3DC.s64 -S D3DC.c $(CFLAGS)
+	$(CC) -m64 -o D3DC.o64 -c D3DC.c $(CFLAGS)
+
+D3DC.32.exe : D3DC.o32
+	$(LD) -o D3DC.32.exe $(LFLAGS32) $(LIB_PRE32) D3DC.o32 $(LIB_POST32)
+
+D3DC.o32 : D3DC.c
+	$(CC) -m32 -o D3DC.s32 -S D3DC.c $(CFLAGS)
+	$(CC) -m32 -o D3DC.o32 -c D3DC.c $(CFLAGS)
